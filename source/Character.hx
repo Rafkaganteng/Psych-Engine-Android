@@ -24,7 +24,6 @@ typedef CharacterFile = {
 	var sing_duration:Float;
 	var healthicon:String;
 
-	
 	var position:Array<Float>;
 	var camera_position:Array<Float>;
 
@@ -97,7 +96,7 @@ class Character extends FlxSprite
 
 			default:
 				var characterPath:String = 'characters/' + curCharacter + '.json';
-				#if desktop
+				#if MODS_ALLOWED
 				var path:String = Paths.modFolders(characterPath);
 				if (!FileSystem.exists(path)) {
 					path = Paths.getPreloadPath(characterPath);
@@ -112,16 +111,25 @@ class Character extends FlxSprite
 					path = Paths.getPreloadPath('characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
 				}
 
-				#if desktop
+				#if MODS_ALLOWED
 				var rawJson = File.getContent(path);
 				#else
 				var rawJson = Assets.getText(path);
 				#end
 
 				var json:CharacterFile = cast Json.parse(rawJson);
-				if(Assets.exists(Paths.getPath('images/' + json.image + '.txt', TEXT))) {
+				#if MODS_ALLOWED
+				var txtToFind:String = Paths.getPath('images/' + json.image + '.txt', TEXT);
+				if(FileSystem.exists(txtToFind) || Assets.exists(txtToFind))
+				#else
+				if(Assets.exists(Paths.getPath('images/' + json.image + '.txt', TEXT)))
+				#end
+				{
+				//bozo forgot about the packer shits : P
 					frames = Paths.getPackerAtlas(json.image);
-				} else {
+				}
+				else
+				{
 					frames = Paths.getSparrowAtlas(json.image);
 				}
 				imageFile = json.image;
@@ -175,7 +183,6 @@ class Character extends FlxSprite
 		originalFlipX = flipX;
 
 		if(animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss')) hasMissAnimations = true;
-
 		recalculateDanceIdle();
 		dance();
 
@@ -214,7 +221,7 @@ class Character extends FlxSprite
 				heyTimer -= elapsed;
 				if(heyTimer <= 0)
 				{
-					if(specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer')
+					if(specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer' || animation.curAnim.name == 'attack' || animation.curAnim.name == 'dodge')
 					{
 						specialAnim = false;
 						dance();

@@ -11,7 +11,7 @@ import flixel.addons.transition.FlxTransitionableState;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
 
-class FlashingState extends MusicBeatState
+class WarningState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
 
@@ -25,7 +25,7 @@ class FlashingState extends MusicBeatState
 
 		warnText = new FlxText(0, 0, FlxG.width,
 			"Hey there person man/woman   \n
-			This song contains some flashing and it may cause a headache,\n
+			This song contains an animated background and it may cause a headache,\n
 			Press Esc if you want to disable it or press Enter if you don't wanna disable it,\n
 			\n
 			Hope you enjoy this song",
@@ -37,22 +37,21 @@ class FlashingState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
-			if (FlxG.keys.justPressed.ENTER) {
-				PlayState.SONG = Song.loadFromJson('stickin-to-it', 'Stickin-To-It');
-                LoadingState.loadAndSwitchState(new PlayState());
-				ClientPrefs.flashing = true;
+			if (controls.ACCEPT) {
+                PlayState.animatedbgdisable = false;
 				FlxG.sound.play(Paths.sound('cancelMenu'));
+                PlayState.SONG = Song.loadFromJson('chosen', 'chosen');
+                LoadingState.loadAndSwitchState(new PlayState());
                 FlxTween.tween(warnText, {alpha: 0}, 1, {
                 });
 			}
-            if (FlxG.keys.justPressed.ESCAPE)
+            else if (controls.BACK) 
             {
                 {
-					PlayState.SONG = Song.loadFromJson('stickin-to-it', 'Stickin-To-It');
-                    LoadingState.loadAndSwitchState(new PlayState());
-					ClientPrefs.flashing = false;
-					ClientPrefs.saveSettings();
+                    PlayState.animatedbgdisable = true;
                     FlxG.sound.play(Paths.sound('cancelMenu'));
+                    PlayState.SONG = Song.loadFromJson('chosen', 'chosen');
+                    LoadingState.loadAndSwitchState(new PlayState());
                     FlxTween.tween(warnText, {alpha: 0}, 1, {
                     });
                 }
